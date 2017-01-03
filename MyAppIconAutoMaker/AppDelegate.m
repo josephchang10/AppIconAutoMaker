@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 
+#define CORNER_RADIUS_PERCENT 0.2237
+
 @interface AppDelegate ()
 
 @property (weak) IBOutlet NSWindow *window;
@@ -51,6 +53,23 @@
         
     }];
 }
+
+- (IBAction)platformSelected:(NSComboBox *)sender {
+    NSLog(@"platform selected index:%ld", (long)sender.indexOfSelectedItem);
+    [self.roundedCheckButton setHidden:!(sender.indexOfSelectedItem == 4)];
+    self.roundedCheckButton.state = 0;
+    self.BigIcon.layer.cornerRadius = 0;
+}
+
+- (IBAction)roundedChecked:(NSButton *)sender {
+    if (sender.state) {
+        self.BigIcon.layer.cornerRadius = CORNER_RADIUS_PERCENT * self.BigIcon.frame.size.width;
+    }else {
+        self.BigIcon.layer.cornerRadius = 0;
+    }
+}
+
+
 
 - (IBAction)Generate:(NSButton *)sender {
     
@@ -164,16 +183,17 @@
 
 - (NSImage *)drawImage:(NSImage *)image withSize:(NSSize)size
 {
-    NSBezierPath * path = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(0, 0, size.width, size.height) xRadius:5 yRadius:5];
+    NSBezierPath * path = [NSBezierPath bezierPathWithRoundedRect:NSMakeRect(0, 0, size.width, size.height) xRadius:size.width*CORNER_RADIUS_PERCENT yRadius:size.height*CORNER_RADIUS_PERCENT];
     
     NSImage * returnImage = [[NSImage alloc] initWithSize:size];
     
     [returnImage lockFocus];
     
+    if (self.roundedCheckButton.state) {
+        [path addClip];
+    }
     
     [image drawInRect:NSMakeRect(0, 0, size.width, size.height) fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:1.0 respectFlipped:YES hints:nil];
-    
-    
     
     [returnImage unlockFocus];
     
